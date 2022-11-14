@@ -9,60 +9,29 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  FlatList,
-  Modal,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  useColorScheme
-} from 'react-native';
-
-import { getProducts } from './src/api';
-import Product from './src/components/Product';
+import { FlatList, SafeAreaView, StyleSheet } from 'react-native';
+import { getNews } from './src/api';
+import NewsItemComp from './src/components/NewsItemComp';
+import { NewsResponse } from './src/interface';
 
 const App = () => {
-  const [products, setProducts] = useState([]);
-  const [show, setShow] = useState(false);
-
   useEffect(() => {
-    // console.log(getProducts());
-    getProducts().then(data => {
-      console.log(data);
-      setProducts(data);
-      console.log(data.map(item => item.category));
-    });
-    return () => {};
+    getNews('all')
+      .then(data => {
+        return data.json();
+      })
+      .then(data => setNews(data.data));
   }, []);
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <Text>Hello World</Text>
-      <Button
-        title="Press Me"
-        onPress={() => {
-          setShow(true);
-        }}
-      />
-      <FlatList
-        data={products}
-        renderItem={({ item }) => <Product product={item} />}
-        numColumns={3}
-      />
+  const [news, setNews] = useState<NewsResponse>();
 
-      <Modal
-        animationType="slide"
-        visible={show}
-        onRequestClose={() => setShow(false)}
-      >
-        <SafeAreaView style={{ flex: 1 }}>
-          <Button title="Close" onPress={() => setShow(false)} />
-          <Text style={{ fontSize: 24, fontWeight: '500', flexWrap: 'wrap' }}>
-            Hello World
-          </Text>
-        </SafeAreaView>
-      </Modal>
+  console.log(news);
+  return (
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={news}
+        renderItem={({ item }) => <NewsItemComp news={item} />}
+      />
     </SafeAreaView>
   );
 };
@@ -72,17 +41,9 @@ const styles = StyleSheet.create({
     marginTop: 32,
     paddingHorizontal: 24
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600'
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400'
-  },
-  highlight: {
-    fontWeight: '700'
+  container: {
+    flex: 1,
+    backgroundColor: 'white'
   }
 });
 
